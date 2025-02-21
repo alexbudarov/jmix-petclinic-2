@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <view xmlns="http://jmix.io/schema/flowui/view"
-      title="msg://petListView.title"
+      title="msg://io.jmix.petclinic.view.pet.pet/petListView.title.nopaging"
       focusComponent="petsDataGrid">
     <data readOnly="true">
         <collection id="petsDc"
