@@ -5,6 +5,7 @@
     <menu opened="true" id="petclinic" title="msg://io.jmix.petclinic/menu.petclinic.title" icon="CLIPBOARD_PULSE">
         <item view="petclinic_Pet.list" title="msg://io.jmix.petclinic.view.pet.pet/petListView.title"/>
         <item view="petclinic_Pet_nopaging.list" title="msg://io.jmix.petclinic.view.pet.pet/petListView.title.nopaging"/>
+        <item view="petclinic_Pet_memory_paging.list" title="msg://io.jmix.petclinic.view.pet.pet/petListView.title.memorypaging"/>
         <item view="petclinic_Owner.list" title="msg://io.jmix.petclinic.view.owner/ownerListView.title"/>
         <item view="petclinic_Visit.list" title="msg://io.jmix.petclinic.view.visit/visitListView.title"/>
     </menu>
