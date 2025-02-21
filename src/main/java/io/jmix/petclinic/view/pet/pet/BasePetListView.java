@@ -7,17 +7,16 @@ import io.jmix.core.FetchPlan;
 import io.jmix.core.metamodel.datatype.DatatypeFormatter;
 import io.jmix.flowui.component.propertyfilter.PropertyFilter;
 import io.jmix.flowui.kit.action.ActionPerformedEvent;
-import io.jmix.flowui.model.CollectionLoader;
+import io.jmix.flowui.view.StandardListView;
+import io.jmix.flowui.view.Subscribe;
+import io.jmix.flowui.view.Supply;
+import io.jmix.flowui.view.ViewComponent;
 import io.jmix.petclinic.entity.NamedEntity;
 import io.jmix.petclinic.entity.pet.Pet;
-
 import io.jmix.petclinic.entity.visit.Visit;
-import io.jmix.petclinic.view.main.MainView;
-
-import com.vaadin.flow.router.Route;
-import io.jmix.flowui.view.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +33,8 @@ public abstract class BasePetListView extends StandardListView<Pet> {
     @Autowired
     private DatatypeFormatter datatypeFormatter;
 
-    // last visits cache
-    private Map<Pet, Visit> lastVisits = new HashMap<>();
+    // last visit date cache
+    protected Map<Pet, LocalDateTime> lastVisits = new HashMap<>();
 
     @Autowired
     private DataManager dataManager;
@@ -50,21 +49,15 @@ public abstract class BasePetListView extends StandardListView<Pet> {
     @Supply(to = "petsDataGrid.lastVisitDate", subject = "renderer")
     private Renderer<Pet> petsDataGridLastVisitDateRenderer() {
         return new TextRenderer<>(pet -> {
-            Visit lastVisit = lastVisits.get(pet);
+            LocalDateTime lastVisit = lastVisits.get(pet);
             return lastVisit != null
-                    ? datatypeFormatter.formatLocalDateTime(lastVisit.getVisitStart())
+                    ? datatypeFormatter.formatLocalDateTime(lastVisit)
                     : "";
         });
     }
 
-    @Subscribe(id = "petsDl", target = Target.DATA_LOADER)
-    public void onPetsDlPostLoad(final CollectionLoader.PostLoadEvent<Pet> event) {
-        List<Pet> petList = event.getLoadedEntities();
-
-        reloadLastVisits(petList);
-    }
-
-    private void reloadLastVisits(List<Pet> petList) {
+    // Load local cache of last visits
+    protected void reloadLastVisits(List<Pet> petList) {
         lastVisits.clear();
         List<UUID> petIds = petList
                 .stream()
@@ -82,11 +75,11 @@ public abstract class BasePetListView extends StandardListView<Pet> {
 
         for (Visit visit: allVisitsByPets) {
             Pet pet = visit.getPet();
-            Visit visitFromMap = lastVisits.get(pet);
-            if (visitFromMap == null) {
-                lastVisits.put(pet, visit);
-            } else if (visit.getVisitStart().isAfter(visitFromMap.getVisitStart())) {
-                lastVisits.put(pet, visit);
+            LocalDateTime dateFromMap = lastVisits.get(pet);
+            if (dateFromMap == null) {
+                lastVisits.put(pet, visit.getVisitStart());
+            } else if (visit.getVisitStart().isAfter(dateFromMap)) {
+                lastVisits.put(pet, visit.getVisitStart());
             }
         }
     }

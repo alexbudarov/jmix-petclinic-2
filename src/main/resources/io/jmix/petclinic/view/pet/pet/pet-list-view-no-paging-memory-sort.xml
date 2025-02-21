@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://petListView.title"
+      focusComponent="petsDataGrid">
+    <data readOnly="true">
+        <collection id="petsDc"
+                    class="io.jmix.petclinic.entity.pet.Pet">
+            <fetchPlan extends="_base">
+                <property name="type" fetchPlan="_instance_name"/>
+                <property name="owner" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="petsDl">
+                <query>
+                    <![CDATA[select e from petclinic_Pet e]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="ownersDc"
+                    class="io.jmix.petclinic.entity.owner.Owner">
+            <fetchPlan extends="_base"/>
+            <loader id="ownersDl">
+                <query>
+                    <![CDATA[select e from petclinic_Owner e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters>
+            <genericFilter component="genericFilter"/>
+            <propertyFilter component="identificationNumberFilter"/>
+            <propertyFilter component="typeFilter"/>
+            <propertyFilter component="ownerFilter"/>
+        </urlQueryParameters>
+        <settings auto="true"/>
+    </facets>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+        <action id="clearFilterAction" text="msg://clearFilter" icon="ERASER"/>
+    </actions>
+    <layout>
+        <hbox width="100%" alignItems="BASELINE" classNames="buttons-panel">
+            <propertyFilter
+                    id="identificationNumberFilter"
+                    property="identificationNumber"
+                    operation="CONTAINS"
+                    dataLoader="petsDl"
+                    labelPosition="TOP"
+                    label="msg://io.jmix.petclinic.entity.pet/Pet.identificationNumber"
+            />
+            <propertyFilter
+                    id="typeFilter"
+                    property="type"
+                    operation="EQUAL"
+                    dataLoader="petsDl"
+                    labelPosition="TOP"
+                    label="msg://io.jmix.petclinic.entity.pet/Pet.type"
+            />
+            <propertyFilter
+                    id="ownerFilter"
+                    property="owner"
+                    operation="EQUAL"
+                    dataLoader="petsDl"
+                    labelPosition="TOP"
+                    label="msg://io.jmix.petclinic.entity.pet/Pet.owner">
+
+                <entityComboBox metaClass="petclinic_Owner" itemsContainer="ownersDc" />
+            </propertyFilter>
+            <button id="clearFilterBtn" action="clearFilterAction" />
+        </hbox>
+        <genericFilter id="genericFilter"
+                       dataLoader="petsDl" opened="false" summaryText="Advanced Filter">
+            <properties include=".*"/>
+        </genericFilter>
+        <hbox id="buttonsPanel" classNames="buttons-panel">
+            <button id="createBtn" action="petsDataGrid.create"/>
+            <button id="editBtn" action="petsDataGrid.edit"/>
+            <button id="removeBtn" action="petsDataGrid.remove"/>
+            <button id="excelExportBtn" action="petsDataGrid.excelExport"/>
+
+            <!-- remove pagination component -->
+            <!--<simplePagination id="pagination" dataLoader="petsDl" itemsPerPageDefaultValue="10"/>-->
+        </hbox>
+        <dataGrid id="petsDataGrid"
+                  width="100%"
+                  minHeight="20em"
+                  dataContainer="petsDc">
+            <actions>
+                <action id="create" type="list_create"/>
+                <action id="edit" type="list_edit"/>
+                <action id="remove" type="list_remove"/>
+                <action id="excelExport" type="grdexp_excelExport"/>
+            </actions>
+            <columns>
+                <column property="name"/>
+                <column property="identificationNumber"/>
+                <column property="birthdate"/>
+                <column property="type"/>
+                <column property="owner"/>
+                <column key="lastVisitDate" header="msg://lastVisitDate.header"/>
+            </columns>
+        </dataGrid>
+        <hbox id="lookupActions" visible="false">
+            <button id="selectBtn" action="selectAction"/>
+            <button id="discardBtn" action="discardAction"/>
+        </hbox>
+    </layout>
+</view>
