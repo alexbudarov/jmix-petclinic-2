@@ -80,7 +80,7 @@
             <button id="editBtn" action="petsDataGrid.edit"/>
             <button id="removeBtn" action="petsDataGrid.remove"/>
             <button id="excelExportBtn" action="petsDataGrid.excelExport"/>
-            <simplePagination id="pagination" dataLoader="petsDl"/>
+            <simplePagination id="pagination" dataLoader="petsDl" itemsPerPageDefaultValue="10"/>
         </hbox>
         <dataGrid id="petsDataGrid"
                   width="100%"
@@ -98,6 +98,7 @@
                 <column property="birthdate"/>
                 <column property="type"/>
                 <column property="owner"/>
+                <column key="lastVisitDate" header="msg://lastVisitDate.header" sortable="false"/>
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">
