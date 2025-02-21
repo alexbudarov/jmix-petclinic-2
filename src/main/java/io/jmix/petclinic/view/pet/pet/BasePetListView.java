@@ -23,12 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Route(value = "pets", layout = MainView.class)
-@ViewController("petclinic_Pet.list")
-@ViewDescriptor("pet-list-view.xml")
-@LookupComponent("petsDataGrid")
-@DialogMode(width = "50em")
-public class PetListView extends StandardListView<Pet> {
+public abstract class BasePetListView extends StandardListView<Pet> {
 
     @ViewComponent
     private PropertyFilter identificationNumberFilter;
