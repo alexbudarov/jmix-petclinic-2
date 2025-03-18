@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Example of an optimisation.
  * Loads and holds data necessary to display a custom column.
+ * Also used for in-memory sorting.
  */
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Component("petclinic_LastVisitDateCache")

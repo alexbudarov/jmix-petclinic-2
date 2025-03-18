@@ -80,7 +80,7 @@
             <button id="removeBtn" action="petsDataGrid.remove"/>
             <button id="excelExportBtn" action="petsDataGrid.excelExport"/>
 
-            <!-- remove pagination component -->
+            <!-- pagination disabled -->
             <!--<simplePagination id="pagination" dataLoader="petsDl" itemsPerPageDefaultValue="10"/>-->
         </hbox>
         <dataGrid id="petsDataGrid"

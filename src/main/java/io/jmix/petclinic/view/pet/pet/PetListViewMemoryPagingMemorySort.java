@@ -28,8 +28,6 @@ public class PetListViewMemoryPagingMemorySort extends BasePetListView {
     private DataManager dataManager;
 
     @ViewComponent
-    private DataGrid<Pet> petsDataGrid;
-    @ViewComponent
     private CollectionLoader<Pet> petsDl;
     @ViewComponent
     private CollectionContainer<Pet> petsDc;
@@ -39,7 +37,7 @@ public class PetListViewMemoryPagingMemorySort extends BasePetListView {
     @Install(to = "petsDl", target = Target.DATA_LOADER)
     private List<Pet> petsDlLoadDelegate(final LoadContext<Pet> loadContext) {
         loadedDataOnce = true;
-        // this will work when screen opens or after filtering
+
         if (isSortByLastVisitDate()) {
             // load full list, disregarding paging settings
             int firstResult = loadContext.getQuery().getFirstResult();
@@ -65,11 +63,6 @@ public class PetListViewMemoryPagingMemorySort extends BasePetListView {
         }
     }
 
-    private boolean isSortByLastVisitDate() {
-        return !petsDataGrid.getSortOrder().isEmpty()
-                && "lastVisitDate".equals(petsDataGrid.getSortOrder().getFirst().getSorted().getKey());
-    }
-
     // sort in memory
     private void sortByLastVisitDate(List<Pet> pets, SortDirection direction) {
         Comparator<Pet> comparator = Comparator.comparing(pet -> {
@@ -82,9 +75,15 @@ public class PetListViewMemoryPagingMemorySort extends BasePetListView {
 
     @Subscribe("petsDataGrid")
     public void onPetsDataGridSort(final SortEvent<DataGrid<Pet>, GridSortOrder<DataGrid<Pet>>> event) {
-        // this will work when user clicks column header's sort control
+        // executed when user clicks column header's sort control
+        // or when column sorting <settings/> are applied on screen opening
+
+        // avoid excessive data loading when column sorting <settings/> are applied on screen opening
+        if (!loadedDataOnce) {
+            return;
+        }
+
         if (isSortByLastVisitDate()
-                && loadedDataOnce
                 // data grid tries to sort "in memory" under this condition
                 // and actually does nothing, so we need to trigger data reloading
                 && petsDl.getFirstResult() == 0

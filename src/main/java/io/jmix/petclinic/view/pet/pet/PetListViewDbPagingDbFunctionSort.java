@@ -29,13 +29,11 @@ public class PetListViewDbPagingDbFunctionSort extends BasePetListView {
     private DataManager dataManager;
 
     @ViewComponent
-    private DataGrid<Pet> petsDataGrid;
-    @ViewComponent
     private CollectionLoader<Pet> petsDl;
     @ViewComponent
     private CollectionContainer<Pet> petsDc;
     @Autowired
-    protected QueryTransformerFactory queryTransformerFactory;
+    private QueryTransformerFactory queryTransformerFactory;
 
     private boolean loadedDataOnce = false;
 
@@ -44,6 +42,7 @@ public class PetListViewDbPagingDbFunctionSort extends BasePetListView {
         loadedDataOnce = true;
 
         if (isSortByLastVisitDate()) {
+            // need to add a custom ORDER BY clause to the query string
             orderByJpqlFunction(loadContext);
         }
 
@@ -55,6 +54,8 @@ public class PetListViewDbPagingDbFunctionSort extends BasePetListView {
     private void orderByJpqlFunction(LoadContext<Pet> loadContext) {
         // see io.jmix.data.impl.jpql.generator.SortJpqlGenerator for reference
         Map<String, Sort.Direction> sortExpressions = new HashMap<>();
+
+        // use custom SQL function pet_last_visit_date(my_pet_id uuid)
         sortExpressions.put("function('pet_last_visit_date', {E}.id)",
                 petsDataGrid.getSortOrder().getFirst().getDirection() == SortDirection.ASCENDING
                         ? Sort.Direction.ASC
@@ -67,11 +68,6 @@ public class PetListViewDbPagingDbFunctionSort extends BasePetListView {
         String queryStringWithOrderByFunction = transformer.getResult();
 
         loadContext.getQuery().setQueryString(queryStringWithOrderByFunction);
-    }
-
-    private boolean isSortByLastVisitDate() {
-        return !petsDataGrid.getSortOrder().isEmpty()
-                && "lastVisitDate".equals(petsDataGrid.getSortOrder().getFirst().getSorted().getKey());
     }
 
     @Subscribe("petsDataGrid")
@@ -90,7 +86,7 @@ public class PetListViewDbPagingDbFunctionSort extends BasePetListView {
                 && petsDl.getFirstResult() == 0
                 && petsDc.getItems().size() < petsDl.getMaxResults()) {
 
-            petsDl.load();
+            petsDl.load(); // petsDlLoadDelegate() will be called here.
         }
     }
 }

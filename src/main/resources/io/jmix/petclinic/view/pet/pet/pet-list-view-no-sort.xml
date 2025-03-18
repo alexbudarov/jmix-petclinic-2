@@ -98,6 +98,7 @@
                 <column property="birthdate"/>
                 <column property="type"/>
                 <column property="owner"/>
+                <!-- no sorting - no problem -->
                 <column key="lastVisitDate" header="msg://lastVisitDate.header" sortable="false"/>
             </columns>
         </dataGrid>

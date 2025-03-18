@@ -28,8 +28,6 @@ public class PetListViewNoPagingMemorySort extends BasePetListView {
     private DataManager dataManager;
 
     @ViewComponent
-    private DataGrid<Pet> petsDataGrid;
-    @ViewComponent
     private CollectionContainer<Pet> petsDc;
 
     @Install(to = "petsDl", target = Target.DATA_LOADER)
@@ -38,16 +36,11 @@ public class PetListViewNoPagingMemorySort extends BasePetListView {
         List<Pet> pets = dataManager.loadList(loadContext);
         lastVisitDateCache.loadLastVisits(pets);
 
-        // this will work when screen opens or after filtering
         if (isSortByLastVisitDate()) {
+            // custom sorting of loaded data set is needed
             sortByLastVisitDate(pets, petsDataGrid.getSortOrder().getFirst().getDirection());
         }
         return pets;
-    }
-
-    private boolean isSortByLastVisitDate() {
-        return !petsDataGrid.getSortOrder().isEmpty()
-                && "lastVisitDate".equals(petsDataGrid.getSortOrder().getFirst().getSorted().getKey());
     }
 
     // sort in memory
@@ -62,9 +55,11 @@ public class PetListViewNoPagingMemorySort extends BasePetListView {
 
     @Subscribe("petsDataGrid")
     public void onPetsDataGridSort(final SortEvent<DataGrid<Pet>, GridSortOrder<DataGrid<Pet>>> event) {
-        // this will work when user clicks column header's sort control
+        // executed when user clicks column header's sort control
+        // or when column sorting <settings/> are applied on screen opening
+
         if (isSortByLastVisitDate() && !petsDc.getItems().isEmpty()) {
-            // sort in memory
+            // sort already loaded data set in memory
             List<Pet> pets = new ArrayList<>(petsDc.getItems());
             var sortOrder = event.getSortOrder().getFirst();
             sortByLastVisitDate(pets, sortOrder.getDirection());

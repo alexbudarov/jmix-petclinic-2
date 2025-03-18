@@ -15,6 +15,7 @@ import java.util.List;
 @DialogMode(width = "50em")
 public class PetListViewNoSort extends BasePetListView {
 
+    // One of available hooks to load additional data for a view: use a PostLoadEvent handler.
     @Subscribe(id = "petsDl", target = Target.DATA_LOADER)
     public void onPetsDlPostLoad(final CollectionLoader.PostLoadEvent<Pet> event) {
         List<Pet> petList = event.getLoadedEntities();
