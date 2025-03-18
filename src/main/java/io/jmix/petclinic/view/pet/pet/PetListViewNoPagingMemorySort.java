@@ -36,7 +36,7 @@ public class PetListViewNoPagingMemorySort extends BasePetListView {
     private List<Pet> petsDlLoadDelegate(final LoadContext<Pet> loadContext) {
         // load full list (no pagination is configured)
         List<Pet> pets = dataManager.loadList(loadContext);
-        reloadLastVisits(pets);
+        lastVisitDateCache.loadLastVisits(pets);
 
         // this will work when screen opens or after filtering
         if (isSortByLastVisitDate()) {
@@ -53,7 +53,8 @@ public class PetListViewNoPagingMemorySort extends BasePetListView {
     // sort in memory
     private void sortByLastVisitDate(List<Pet> pets, SortDirection direction) {
         Comparator<Pet> comparator = Comparator.comparing(pet -> {
-            return lastVisits.getOrDefault(pet, LocalDateTime.MIN);
+            var date = lastVisitDateCache.getLastVisitDate(pet);
+            return date != null ? date : LocalDateTime.MIN;
         });
 
         pets.sort(direction == SortDirection.ASCENDING ? comparator : comparator.reversed());

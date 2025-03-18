@@ -6,19 +6,15 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Route;
 import io.jmix.core.DataManager;
 import io.jmix.core.LoadContext;
-import io.jmix.core.entity.KeyValueEntity;
 import io.jmix.flowui.component.grid.DataGrid;
 import io.jmix.flowui.model.CollectionContainer;
 import io.jmix.flowui.model.CollectionLoader;
 import io.jmix.flowui.view.*;
-import io.jmix.petclinic.entity.NamedEntity;
 import io.jmix.petclinic.entity.pet.Pet;
-import io.jmix.petclinic.entity.visit.Visit;
 import io.jmix.petclinic.view.main.MainView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -53,7 +49,7 @@ public class PetListViewMemoryPagingMemorySort extends BasePetListView {
             loadContext.getQuery().setMaxResults(0);
             List<Pet> manyPets = dataManager.loadList(loadContext);
 
-            loadLastVisitDatesForLargePetList(manyPets);
+            lastVisitDateCache.loadLastVisits(manyPets);
             // sort full unpaged list
             sortByLastVisitDate(manyPets, petsDataGrid.getSortOrder().getFirst().getDirection());
 
@@ -64,26 +60,8 @@ public class PetListViewMemoryPagingMemorySort extends BasePetListView {
         } else {
             // rely on database
             List<Pet> pets = dataManager.loadList(loadContext);
-            reloadLastVisits(pets);
+            lastVisitDateCache.loadLastVisits(pets);
             return pets;
-        }
-    }
-
-    private void loadLastVisitDatesForLargePetList(List<Pet> manyPets) {
-        lastVisits.clear();
-        // bulk load maximum last visit dates
-        if (!manyPets.isEmpty()) {
-            List<KeyValueEntity> data = dataManager.loadValues(
-                            "select p, max(v.visitStart)" +
-                                    " from petclinic_Visit v join v.pet p" +
-                                    " where p in :petIds" +
-                                    " group by p")
-                    .properties("pet", "maxVisitStart")
-                    .parameter("petIds", manyPets.stream().map(NamedEntity::getId).toList())
-                    .list();
-            for (KeyValueEntity item : data) {
-                lastVisits.put(item.getValue("pet"), item.getValue("maxVisitStart"));
-            }
         }
     }
 
@@ -95,7 +73,8 @@ public class PetListViewMemoryPagingMemorySort extends BasePetListView {
     // sort in memory
     private void sortByLastVisitDate(List<Pet> pets, SortDirection direction) {
         Comparator<Pet> comparator = Comparator.comparing(pet -> {
-            return lastVisits.getOrDefault(pet, LocalDateTime.MIN);
+            var date = lastVisitDateCache.getLastVisitDate(pet);
+            return date != null ? date : LocalDateTime.MIN;
         });
 
         pets.sort(direction == SortDirection.ASCENDING ? comparator : comparator.reversed());

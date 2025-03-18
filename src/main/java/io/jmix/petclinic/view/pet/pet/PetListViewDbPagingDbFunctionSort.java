@@ -48,7 +48,7 @@ public class PetListViewDbPagingDbFunctionSort extends BasePetListView {
         }
 
         List<Pet> pets = dataManager.loadList(loadContext);
-        reloadLastVisits(pets);
+        lastVisitDateCache.loadLastVisits(pets);
         return pets;
     }
 
