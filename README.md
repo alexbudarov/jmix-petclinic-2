@@ -27,7 +27,7 @@ Comparison:
 Menu item: **Pets (no sort)**.
 
 Related files:
- - src/main/resources/io/jmix/petclinic/view/pet/pet/pet-list-view-no-sort.xml
+ - [pet-list-view-no-sort.xml](src/main/resources/io/jmix/petclinic/view/pet/pet/pet-list-view-no-sort.xml)
 
 No sorting - no problem.
 
@@ -37,8 +37,8 @@ Consider to disable sorting for all custom columns unless a proper sorting logic
 Menu item: **Pets (no paging, in memory)**
 
 Related files:
-- src/main/resources/io/jmix/petclinic/view/pet/pet/pet-list-view-no-paging-memory-sort.xml
-- io.jmix.petclinic.view.pet.pet.PetListViewNoPagingMemorySort
+- [pet-list-view-no-paging-memory-sort.xml](src/main/resources/io/jmix/petclinic/view/pet/pet/pet-list-view-no-paging-memory-sort.xml)
+- [PetListViewNoPagingMemorySort](src/main/java/io/jmix/petclinic/view/pet/pet/PetListViewNoPagingMemorySort.java)
 
 The whole data set is loaded into memory. Then it is sorted in Java code.
 
@@ -48,8 +48,8 @@ Consider to use in-memory sorting and disable paging in the List view if you kno
 Menu item: **Pets (paging, in memory)**
 
 Related files:
-- src/main/resources/io/jmix/petclinic/view/pet/pet/pet-list-view-memory-paging-memory-sort.xml
-- io.jmix.petclinic.view.pet.pet.PetListViewMemoryPagingMemorySort
+- [pet-list-view-memory-paging-memory-sort.xml](src/main/resources/io/jmix/petclinic/view/pet/pet/pet-list-view-memory-paging-memory-sort.xml)
+- [PetListViewMemoryPagingMemorySort](src/main/java/io/jmix/petclinic/view/pet/pet/PetListViewMemoryPagingMemorySort.java)
 
 The whole data set is loaded into memory. Then it is sorted in Java code. Finally, a small page is extracted and shown in UI.
 
@@ -59,15 +59,15 @@ Consider this method as a last resort for small data sets (< 5000 rows), if crea
 Menu item: **Pets (paging, SQL function)**
 
 Related files:
-- src/main/resources/io/jmix/petclinic/view/pet/pet/pet-list-view-db-paging-db-function-sort.xml
-- io.jmix.petclinic.view.pet.pet.PetListViewDbPagingDbFunctionSort
-- src/main/resources/io/jmix/petclinic/liquibase/changelog/2025/03/18-last-visit-date-sort-function.xml - creation of SQL function
+- [pet-list-view-db-paging-db-function-sort.xml](src/main/resources/io/jmix/petclinic/view/pet/pet/pet-list-view-db-paging-db-function-sort.xml)
+- [PetListViewDbPagingDbFunctionSort](src/main/java/io/jmix/petclinic/view/pet/pet/PetListViewDbPagingDbFunctionSort.java)
+- [18-last-visit-date-sort-function.xml](src/main/resources/io/jmix/petclinic/liquibase/changelog/2025/03/18-last-visit-date-sort-function.xml) - creation of SQL function
 
 JPQL query transforming is used. In the data load delegate, the custom "order by custom_function_name" clause is added to the JPQL query string. Sorting as well as pagination are performed efficiently in the database. 
 
 This method is efficient for large data sets.
 
-Instead of using SQL function, one can transform the JPQL query string in other way, e.g. by adding an order by clause by some existing persistent attribute.
+Instead of using SQL function, one can transform the JPQL query string differently, e.g. by adding an order by clause by some existing persistent attribute.
 
 ## Jmix Petclinic
 
