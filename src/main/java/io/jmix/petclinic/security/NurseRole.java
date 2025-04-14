@@ -7,6 +7,7 @@ import io.jmix.petclinic.entity.pet.PetType;
 import io.jmix.petclinic.entity.veterinarian.Specialty;
 import io.jmix.petclinic.entity.veterinarian.Veterinarian;
 import io.jmix.petclinic.entity.visit.Visit;
+import io.jmix.petclinic.view.visit.VisitInfo;
 import io.jmix.security.model.EntityAttributePolicyAction;
 import io.jmix.security.model.EntityPolicyAction;
 import io.jmix.security.role.annotation.EntityAttributePolicy;
@@ -47,6 +48,10 @@ public interface NurseRole {
     @EntityAttributePolicy(entityClass = PetType.class, attributes = "*", action = EntityAttributePolicyAction.VIEW)
     @EntityPolicy(entityClass = PetType.class, actions = EntityPolicyAction.READ)
     void petType();
+
+    @EntityAttributePolicy(entityClass = VisitInfo.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityPolicy(entityClass = VisitInfo.class, actions = EntityPolicyAction.ALL)
+    void visitInfo();
 
     @ViewPolicy(viewIds = {"petclinic_MyVisits", "petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Visit.list", "petclinic_Specialty.list", "petclinic_Veterinarian.list", "petclinic_PetType.list", "petclinic_Owner.detail", "petclinic_Pet.detail", "petclinic_PetType.detail", "petclinic_PetType.lookup", "petclinic_Specialty.detail", "petclinic_Veterinarian.detail", "petclinic_Visit.detail", "petclinic_Visit.monitor"})
     void views();
