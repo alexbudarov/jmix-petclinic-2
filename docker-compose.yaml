@@ -1,0 +1,39 @@
+services:
+  elasticsearch:
+    # Elasticsearch is the database where log data is stored.
+    # Logstash sends processed logs here, and it provides search and analytics capabilities.
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    environment:
+      - discovery.type=single-node  # Running in single-node mode for development.
+      - xpack.security.enabled=false  # Disabling security for easier access in development.
+    ports:
+      - "9200:9200"  # Exposing Elasticsearch's API on port 9200.
+    volumes:
+      - esdata:/usr/share/elasticsearch/data  # Persisting data across container restarts.
+
+  logstash:
+    # Logstash collects logs from your application and forwards them to Elasticsearch.
+    # The application's logging configuration (logback-spring.xml) defines Logstash as the destination for logs.
+    # Logstash then ensures the logs are properly structured and stored in Elasticsearch.
+    image: docker.elastic.co/logstash/logstash:8.10.2
+#    volumes:
+#      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf  # Logstash pipeline configuration.
+    ports:
+      - "5044:5044"  # Listening on port 5044 for incoming logs from the application.
+    depends_on:
+      - elasticsearch  # Ensuring Elasticsearch is ready before Logstash starts.
+
+  kibana:
+    # Kibana provides a web interface to visualize and explore log data stored in Elasticsearch.
+    # You can create dashboards, filter logs, and search for specific data fields.
+    image: docker.elastic.co/kibana/kibana:8.10.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200  # Kibana connects to Elasticsearch at this address.
+    ports:
+      - "5601:5601"  # Kibana's web interface is accessible on port 5601.
+    depends_on:
+      - elasticsearch  # Ensures Elasticsearch starts before Kibana.
+
+volumes:
+  esdata:
+    driver: local  # Persistent storage for Elasticsearch data.
