@@ -81,3 +81,7 @@ a.event-blue .fc-event-main {
 .jmix-main-view-section a:-webkit-any-link:focus-visible {
     outline-color: var(--lumo-primary-color-50pct);
 }
+
+vaadin-grid::part(rec-upd) {
+    background-color: var(--lumo-success-color-10pct);
+}

@@ -6,7 +6,7 @@ import io.jmix.core.metamodel.annotation.JmixEntity;
 import io.jmix.petclinic.entity.visit.Visit;
 
 import java.math.BigDecimal;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @JmixEntity(name = "petclinic_VisitInfo")
@@ -19,13 +19,13 @@ public class VisitInfo {
 
     private BigDecimal price;
 
-    private LocalTime lastUpdated;
+    private LocalDateTime lastUpdated;
 
-    public void setLastUpdated(LocalTime lastUpdated) {
+    public void setLastUpdated(LocalDateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 
-    public LocalTime getLastUpdated() {
+    public LocalDateTime getLastUpdated() {
         return lastUpdated;
     }
 
