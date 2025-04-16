@@ -84,6 +84,7 @@ public class VisitMonitor extends StandardListView<Visit> {
                 BigDecimal newPrice = event.getValue();
                 visitInfo.setPrice(newPrice);
                 visitCache.setPrice(visitInfo.getId(), newPrice);
+                log.info("Price changed to {}", newPrice);
             });
             textField.setWidth("5em");
             return textField;
@@ -107,7 +108,13 @@ public class VisitMonitor extends StandardListView<Visit> {
     public void visitsChanged(VisitUpdatedEvent event) {
         for (UUID visitId : event.getUpdatedVisitIds()) {
             VisitInfo visit = visitCache.getItemById(visitId);
-            visitInfoDc.replaceItem(visit);
+            // provokes repaint for all rows
+            // visitInfoDc.replaceItem(visit);
+
+            // copy in place all attributes that could be changed
+            VisitInfo containerItem = visitInfoDc.getItem(visitId);
+            containerItem.setPrice(visit.getPrice());
+            containerItem.setLastUpdated(visit.getLastUpdated());
         }
         log.info("UI updated by event");
     }
@@ -124,12 +131,5 @@ public class VisitMonitor extends StandardListView<Visit> {
             return "rec-upd"; // recently updated
         }
         return null;
-    }
-
-    @Subscribe(id = "visitInfoDc", target = Target.DATA_CONTAINER)
-    public void onVisitInfoDcItemPropertyChange(final InstanceContainer.ItemPropertyChangeEvent<VisitInfo> event) {
-        if (event.getProperty().equals("price")) {
-            log.info("Price changed to {}", event.getValue());
-        }
     }
 }

@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @Component
 public class VisitCache {
     private static final Logger log = LoggerFactory.getLogger(VisitCache.class);
+    public static final int ITEMS_TO_UPDATE_PER_TICK = 2;
+
     private final FetchPlans fetchPlans;
     private final EntityStates entityStates;
     private final Copier copier;
@@ -94,7 +96,7 @@ public class VisitCache {
         return value != null ? copier.copy(value) : null;
     }
 
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 1000)
     public void updateCache() {
         if (!initialized) {
             return;
@@ -104,7 +106,7 @@ public class VisitCache {
         Set<UUID> idsToUpdate = new HashSet<>();
         int itemCount = visits.size();
         List<UUID> allIds = visits.keySet().stream().toList();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < ITEMS_TO_UPDATE_PER_TICK; i++) {
             int randomIndex = ThreadLocalRandom.current().nextInt(0, itemCount);
             idsToUpdate.add(allIds.get(randomIndex));
         }
@@ -116,7 +118,8 @@ public class VisitCache {
         }
 
         priceCounter++;
-        uiEventPublisher.publishEventForUsers(new VisitUpdatedEvent(this, idsToUpdate), null);
+        VisitUpdatedEvent event = new VisitUpdatedEvent(this, idsToUpdate);
+        uiEventPublisher.publishEventForUsers(event, null);
     }
 
     public void setPrice(UUID visitId, BigDecimal price) {
