@@ -1,5 +1,6 @@
 package io.jmix.petclinic.view.visit;
 
+import io.jmix.core.EntityStates;
 import io.jmix.core.FetchPlan;
 import io.jmix.core.FetchPlans;
 import io.jmix.core.UnconstrainedDataManager;
@@ -16,6 +17,7 @@ import java.util.List;
 @Component
 public class VisitCache {
     private final FetchPlans fetchPlans;
+    private final EntityStates entityStates;
 
     private List<VisitInfo> visits = new ArrayList<>();
 
@@ -23,9 +25,10 @@ public class VisitCache {
 
     private final UnconstrainedDataManager unconstrainedDataManager;
 
-    public VisitCache(UnconstrainedDataManager unconstrainedDataManager, FetchPlans fetchPlans) {
+    public VisitCache(UnconstrainedDataManager unconstrainedDataManager, FetchPlans fetchPlans, EntityStates entityStates) {
         this.unconstrainedDataManager = unconstrainedDataManager;
         this.fetchPlans = fetchPlans;
+        this.entityStates = entityStates;
     }
 
     @EventListener
@@ -34,7 +37,7 @@ public class VisitCache {
                 .addFetchPlan(FetchPlan.BASE)
                 .add("assignedNurse", FetchPlan.INSTANCE_NAME)
                 .add("pet", petBuilder -> {
-                    petBuilder.add(FetchPlan.INSTANCE_NAME)
+                    petBuilder.addFetchPlan(FetchPlan.INSTANCE_NAME)
                             .add("type", FetchPlan.INSTANCE_NAME)
                             .add("owner", FetchPlan.INSTANCE_NAME);
                 })
@@ -52,6 +55,7 @@ public class VisitCache {
                     vi.setId(v.getId());
                     vi.setVisit(v);
                     vi.setPrice(BigDecimal.valueOf(priceCounter));
+                    entityStates.setNew(vi, false);
                     return vi;
                 })
                 .toList();
