@@ -109,12 +109,12 @@ public class VisitMonitor extends StandardListView<Visit> {
         for (UUID visitId : event.getUpdatedVisitIds()) {
             VisitInfo visit = visitCache.getItemById(visitId);
             // provokes repaint for all rows
-            // visitInfoDc.replaceItem(visit);
+            visitInfoDc.replaceItem(visit);
 
             // copy in place all attributes that could be changed
-            VisitInfo containerItem = visitInfoDc.getItem(visitId);
-            containerItem.setPrice(visit.getPrice());
-            containerItem.setLastUpdated(visit.getLastUpdated());
+            // VisitInfo containerItem = visitInfoDc.getItem(visitId);
+            // containerItem.setPrice(visit.getPrice());
+            // containerItem.setLastUpdated(visit.getLastUpdated());
         }
         log.info("UI updated by event");
     }
