@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.sql.DataSource;
 
@@ -24,6 +25,7 @@ import javax.sql.DataSource;
 @Theme(value = "jmix-petclinic")
 @PWA(name = "Jmix Petclinic", shortName = "Jmix Petclinic")
 @SpringBootApplication
+@EnableScheduling
 public class JmixPetclinicApplication implements AppShellConfigurator {
 
     @Autowired

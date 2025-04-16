@@ -1,34 +1,46 @@
 package io.jmix.petclinic.view.visit;
 
-import io.jmix.core.EntityStates;
-import io.jmix.core.FetchPlan;
-import io.jmix.core.FetchPlans;
-import io.jmix.core.UnconstrainedDataManager;
+import io.jmix.core.*;
+import io.jmix.flowui.UiEventPublisher;
 import io.jmix.petclinic.entity.visit.Visit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class VisitCache {
+    private static final Logger log = LoggerFactory.getLogger(VisitCache.class);
     private final FetchPlans fetchPlans;
     private final EntityStates entityStates;
+    private final Copier copier;
 
-    private List<VisitInfo> visits = new ArrayList<>();
+    private LinkedHashMap<UUID, VisitInfo> visits = new LinkedHashMap<>();
+    private volatile boolean initialized = false;
 
     private int priceCounter = 10;
 
     private final UnconstrainedDataManager unconstrainedDataManager;
 
-    public VisitCache(UnconstrainedDataManager unconstrainedDataManager, FetchPlans fetchPlans, EntityStates entityStates) {
+    private final UiEventPublisher uiEventPublisher;
+
+    public VisitCache(UnconstrainedDataManager unconstrainedDataManager, FetchPlans fetchPlans, EntityStates entityStates, Copier copier,
+                      @Qualifier("flowui_UiEventPublisher") UiEventPublisher uiEventPublisher) {
         this.unconstrainedDataManager = unconstrainedDataManager;
         this.fetchPlans = fetchPlans;
         this.entityStates = entityStates;
+        this.copier = copier;
+        this.uiEventPublisher = uiEventPublisher;
     }
 
     @EventListener
@@ -58,10 +70,57 @@ public class VisitCache {
                     entityStates.setNew(vi, false);
                     return vi;
                 })
-                .toList();
+                .collect(Collectors.toMap(
+                        VisitInfo::getId,
+                        Function.identity(),
+                        (a, b) -> a,
+                        LinkedHashMap::new
+                ));
+        initialized = true;
     }
 
+    /**
+     * Creates a deep clone of objects stored in cache.
+     */
     public List<VisitInfo> getVisits() {
-        return Collections.unmodifiableList(visits);
+        return copier.copy(visits.values().stream().toList());
+    }
+
+    /**
+     * Creates a deep clone of stored object
+     */
+    public VisitInfo getItemById(UUID id) {
+        VisitInfo value = visits.get(id);
+        return value != null ? copier.copy(value) : null;
+    }
+
+    @Scheduled(fixedRate = 2000)
+    public void updateCache() {
+        if (!initialized) {
+            return;
+        }
+        log.info("Updating cache {}", priceCounter);
+
+        Set<UUID> idsToUpdate = new HashSet<>();
+        int itemCount = visits.size();
+        List<UUID> allIds = visits.keySet().stream().toList();
+        for (int i = 0; i < 3; i++) {
+            int randomIndex = ThreadLocalRandom.current().nextInt(0, itemCount);
+            idsToUpdate.add(allIds.get(randomIndex));
+        }
+
+        for (UUID id : idsToUpdate) {
+            VisitInfo item = visits.get(id);
+            item.setPrice(BigDecimal.valueOf(priceCounter));
+            item.setLastUpdated(LocalDateTime.now());
+        }
+
+        priceCounter++;
+        uiEventPublisher.publishEventForUsers(new VisitUpdatedEvent(this, idsToUpdate), null);
+    }
+
+    public void setPrice(UUID visitId, BigDecimal price) {
+        Optional.of(visits.get(visitId))
+                .ifPresent(v -> v.setPrice(price));
     }
 }

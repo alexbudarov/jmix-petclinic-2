@@ -1,26 +1,31 @@
 package io.jmix.petclinic.view.visit;
 
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 import io.jmix.core.*;
+import io.jmix.core.metamodel.datatype.DatatypeRegistry;
 import io.jmix.core.security.CurrentAuthentication;
+import io.jmix.flowui.UiComponents;
+import io.jmix.flowui.component.textfield.TypedTextField;
 import io.jmix.flowui.facet.Timer;
 import io.jmix.flowui.model.CollectionContainer;
-import io.jmix.flowui.model.DataContext;
+import io.jmix.flowui.model.InstanceContainer;
 import io.jmix.flowui.view.*;
 import io.jmix.petclinic.entity.visit.Visit;
 import io.jmix.petclinic.view.main.MainView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.UUID;
 
 import static java.time.temporal.ChronoField.*;
 
@@ -31,25 +36,22 @@ import static java.time.temporal.ChronoField.*;
 @LookupComponent("visitsDataGrid")
 @DialogMode(width = "64em")
 public class VisitMonitor extends StandardListView<Visit> {
+    private static final Logger log = LoggerFactory.getLogger(VisitMonitor.class);
 
     @Autowired
     private CurrentAuthentication currentAuthentication;
+    @ViewComponent
+    private CollectionContainer<VisitInfo> visitInfoDc;
+    @Autowired
+    private TimeSource timeSource;
+    @Autowired
+    private VisitCache visitCache;
 
     private DateTimeFormatter timeFormatter;
     @Autowired
-    private DataManager dataManager;
-    @ViewComponent
-    private CollectionContainer<VisitInfo> visitInfoDc;
-    @ViewComponent
-    private CollectionContainer<Visit> visitsDc;
+    private UiComponents uiComponents;
     @Autowired
-    private Metadata metadata;
-    @ViewComponent
-    private DataContext dataContext;
-    @Autowired
-    private TimeSource timeSource;
-
-    private int priceCounter = 10;
+    private DatatypeRegistry datatypeRegistry;
 
     @Subscribe
     public void onInit(final InitEvent event) {
@@ -72,48 +74,47 @@ public class VisitMonitor extends StandardListView<Visit> {
         });
     }
 
+    @Supply(to = "visitsDataGrid.price", subject = "renderer")
+    private Renderer<VisitInfo> visitsDataGridPriceRenderer() {
+        return new ComponentRenderer<>(visitInfo -> {
+            TypedTextField<BigDecimal> textField = uiComponents.create(TypedTextField.class);
+            textField.setDatatype(datatypeRegistry.get(BigDecimal.class));
+            textField.setTypedValue(visitInfo.getPrice());
+            textField.addTypedValueChangeListener(event -> {
+                BigDecimal newPrice = event.getValue();
+                visitInfo.setPrice(newPrice);
+                visitCache.setPrice(visitInfo.getId(), newPrice);
+            });
+            textField.setWidth("5em");
+            return textField;
+        });
+    }
+
     @Subscribe("timer")
     public void onTimerTimerAction(final Timer.TimerActionEvent event) {
-        priceCounter++;
+        visitInfoDc.mute();
+        try {
+            List<VisitInfo> visitItems = visitInfoDc.getMutableItems();
+            visitItems.clear();
+            visitItems.addAll(visitCache.getVisits());
+        } finally {
+            visitInfoDc.unmute(CollectionContainer.UnmuteEventsMode.FIRE_REFRESH_EVENT);
+        }
+        log.info("Full update done");
+    }
 
-        Set<Integer> numbersToUpdate = new HashSet<>();
-        int itemCount = visitInfoDc.getItems().size();
-        for (int i = 0; i < 5; i++) {
-            numbersToUpdate.add(ThreadLocalRandom.current().nextInt(0, itemCount));
+    @EventListener
+    public void visitsChanged(VisitUpdatedEvent event) {
+        for (UUID visitId : event.getUpdatedVisitIds()) {
+            VisitInfo visit = visitCache.getItemById(visitId);
+            visitInfoDc.replaceItem(visit);
         }
-        for (int number : numbersToUpdate) {
-            VisitInfo item = visitInfoDc.getItems().get(number);
-            item.setPrice(BigDecimal.valueOf(priceCounter));
-            item.setLastUpdated(LocalDateTime.now());
-        }
+        log.info("UI updated by event");
     }
 
     @Install(to = "visitInfoDl", target = Target.DATA_LOADER)
     private List<VisitInfo> visitInfoDlLoadDelegate(final LoadContext<VisitInfo> loadContext) {
-        List<Visit> visits = dataManager.load(Visit.class)
-                .query("select v from petclinic_Visit v")
-                .fetchPlan(visitsDc.getFetchPlan())
-                .firstResult(loadContext.getQuery().getFirstResult())
-                .maxResults(loadContext.getQuery().getMaxResults())
-                .list();
-
-        return visits.stream()
-                .map(v -> {
-                    VisitInfo vi = dataContext.create(VisitInfo.class);
-                    vi.setId(v.getId());
-                    vi.setVisit(v);
-                    vi.setPrice(BigDecimal.valueOf(priceCounter));
-                    return vi;
-                })
-                .toList();
-    }
-
-    @Install(to = "pagination", subject = "totalCountDelegate")
-    private Integer paginationTotalCountDelegate(final DataLoadContext dataLoadContext) {
-        LoadContext<Visit> lc = new LoadContext<>(metadata.getClass(Visit.class));
-        lc.setQueryString("select v from petclinic_Visit v");
-
-        return (int) dataManager.getCount(lc);
+        return visitCache.getVisits();
     }
 
     @Install(to = "visitsDataGrid.lastUpdated", subject = "partNameGenerator")
@@ -123,5 +124,12 @@ public class VisitMonitor extends StandardListView<Visit> {
             return "rec-upd"; // recently updated
         }
         return null;
+    }
+
+    @Subscribe(id = "visitInfoDc", target = Target.DATA_CONTAINER)
+    public void onVisitInfoDcItemPropertyChange(final InstanceContainer.ItemPropertyChangeEvent<VisitInfo> event) {
+        if (event.getProperty().equals("price")) {
+            log.info("Price changed to {}", event.getValue());
+        }
     }
 }
