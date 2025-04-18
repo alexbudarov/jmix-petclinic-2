@@ -1,7 +1,10 @@
 package io.jmix.petclinic.monitoring;
 
+import io.github.mweirauch.micrometer.jvm.extras.ProcessMemoryMetrics;
+import io.github.mweirauch.micrometer.jvm.extras.ProcessThreadMetrics;
 import io.jmix.core.JmixSecurityFilterChainOrder;
 import io.jmix.security.util.JmixHttpSecurityUtils;
+import io.micrometer.core.instrument.binder.MeterBinder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -24,5 +27,15 @@ public class MonitoringConfiguration {
                 .csrf(csrf -> csrf.disable());
         JmixHttpSecurityUtils.configureAnonymous(http);
         return http.build();
+    }
+
+    @Bean
+    public MeterBinder processMemoryMetrics() {
+        return new ProcessMemoryMetrics();
+    }
+
+    @Bean
+    public MeterBinder processThreadMetrics() {
+        return new ProcessThreadMetrics();
     }
 }
