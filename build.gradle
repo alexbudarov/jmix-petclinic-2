@@ -54,6 +54,8 @@ dependencies {
     testImplementation 'io.jmix.flowui:jmix-flowui-test-assist'
 
     implementation 'org.apache.commons:commons-dbcp2'
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
+    implementation 'ch.qos.logback:logback-classic:1.5.16'
 }
 
 configurations.implementation {
