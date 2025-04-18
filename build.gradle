@@ -54,6 +54,10 @@ dependencies {
     testImplementation 'io.jmix.flowui:jmix-flowui-test-assist'
 
     implementation 'org.apache.commons:commons-dbcp2'
+
+    // monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 configurations.implementation {
