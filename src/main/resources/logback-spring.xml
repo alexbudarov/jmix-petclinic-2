@@ -13,5 +13,4 @@
         <appender-ref ref="LOGSTASH"/>
     </root>
 
-    <logger name="eclipselink.logging.sql" level="DEBUG"/>
 </configuration>

@@ -10,6 +10,8 @@ import io.jmix.flowui.view.*;
 import io.jmix.petclinic.entity.visit.Visit;
 import io.jmix.petclinic.entity.visit.VisitTreatmentStatus;
 import io.jmix.petclinic.view.main.MainView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "my-visits", layout = MainView.class)
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @DialogMode(width = "64em")
 public class MyVisitsView extends StandardListView<Visit> {
 
+    private static final Logger log = LoggerFactory.getLogger(MyVisitsView.class);
     @ViewComponent
     private DataGrid<Visit> visitsDataGrid;
     @Autowired
@@ -42,6 +45,7 @@ public class MyVisitsView extends StandardListView<Visit> {
         }
 
         updateTreatmentTo(visit, VisitTreatmentStatus.IN_PROGRESS);
+        log.info("Started treatment for visit {}", visit.getId());
         notifications.create(messageBundle.formatMessage("treatmentStarted", visit.getPetName()))
                 .withType(Notifications.Type.SUCCESS)
                 .withPosition(Notification.Position.TOP_END)
@@ -62,6 +66,7 @@ public class MyVisitsView extends StandardListView<Visit> {
         }
 
         updateTreatmentTo(visit, VisitTreatmentStatus.DONE);
+        log.info("Finished treatment for visit {}", visit.getId());
         notifications.create(messageBundle.formatMessage("treatmentFinished", visit.getPetName()))
                 .withType(Notifications.Type.SUCCESS)
                 .withPosition(Notification.Position.TOP_END)
