@@ -5,6 +5,7 @@ import io.github.mweirauch.micrometer.jvm.extras.ProcessThreadMetrics;
 import io.jmix.core.JmixSecurityFilterChainOrder;
 import io.jmix.security.util.JmixHttpSecurityUtils;
 import io.micrometer.core.instrument.binder.MeterBinder;
+import jakarta.persistence.EntityManagerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -38,4 +39,10 @@ public class MonitoringConfiguration {
     public MeterBinder processThreadMetrics() {
         return new ProcessThreadMetrics();
     }
+
+    @Bean
+    public MeterBinder eclipseLinkMetrics(EntityManagerFactory entityManagerFactory) {
+        return new EclipseLinkMetrics(entityManagerFactory);
+    }
+
 }
