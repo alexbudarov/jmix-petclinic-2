@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <view xmlns="http://jmix.io/schema/flowui/view"
+      xmlns:app="http://company.com/schema/app-ui-components"
       title="msg://petDetailView.title"
       focusComponent="form">
     <data>
@@ -45,6 +46,7 @@
                     <action id="entityClear" type="entity_clear"/>
                 </actions>
             </entityPicker>
+            <app:slider id="slider" min="15" max="95" css="margin-top: 1.5em"/>
         </formLayout>
         <hbox id="detailActions">
             <button id="saveAndCloseBtn" action="saveAction"/>
