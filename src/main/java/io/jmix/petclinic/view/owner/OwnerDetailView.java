@@ -54,8 +54,6 @@ public class OwnerDetailView extends StandardDetailView<Owner> {
                         "{'b': /[А-Яа-я]/}",
                         true
                 ),
-                InputMaskOption.lazy(false),
-                InputMaskOption.option("placeholderChar", "#"),
                 InputMaskOption.toUppercase()
         );
         mask.extend(passportNumberField);
