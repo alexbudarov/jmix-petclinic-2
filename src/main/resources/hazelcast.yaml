@@ -5,4 +5,4 @@ hazelcast:
         enabled: false
       kubernetes:
         enabled: false # in Kubernetes it's actually set to true via environment variable
-        service-name: petclinic
+        service-name: petclinic-app-service
