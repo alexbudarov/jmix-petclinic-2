@@ -39,7 +39,7 @@ public class Owner extends Person {
     @OneToMany(mappedBy = "owner")
     private List<Pet> pets;
 
-    @Pattern(regexp = "\\d{2} \\d{2} \\d{6}")
+    @Pattern(regexp = "[А-Я]{2} \\d{2} \\d{6}", message = "Wrong passport number format")
     @Column(name = "PASSPORT_NUMBER", length = 12)
     private String passportNumber;
 

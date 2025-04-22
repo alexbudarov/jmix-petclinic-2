@@ -21,6 +21,9 @@ repositories {
     maven {
         url = 'https://global.repo.jmix.io/repository/public'
     }
+    maven {
+        url 'https://maven.vaadin.com/vaadin-addons'
+    }
 }
 
 vaadin {
@@ -45,6 +48,9 @@ dependencies {
     implementation 'io.jmix.flowui:jmix-flowui-kit'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Vaadin Input Mask Add-on
+    implementation 'org.vaadin.addons.componentfactory:vcf-input-mask:2.2.0'
 
     runtimeOnly 'org.hsqldb:hsqldb'
 
