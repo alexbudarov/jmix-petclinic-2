@@ -48,8 +48,6 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    runtimeOnly 'org.hsqldb:hsqldb'
-
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
@@ -59,6 +57,10 @@ dependencies {
 
     // cluster cache
     implementation 'com.hazelcast:hazelcast'
+
+    // jdbc drivers
+    implementation 'org.hsqldb:hsqldb'
+    implementation 'org.postgresql:postgresql'
 }
 
 configurations.implementation {
