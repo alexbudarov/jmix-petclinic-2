@@ -87,6 +87,6 @@ bootBuildImage {
     if (rootProject.hasProperty('jmixDockerTag')) {
         imageName = rootProject['jmixDockerTag']
     } else {
-        imageName = 'alexbudarov/petclinic'
+        imageName = 'jmix-samples/petclinic'
     }
 }

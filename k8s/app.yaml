@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petclinic-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: petclinic-app
+  template:
+    metadata:
+      labels:
+        app: petclinic-app
+    spec:
+      containers:
+        - image: jmix-samples/petclinic
+          imagePullPolicy: IfNotPresent
+          name: petclinic-app
+          env:
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: petclinic-db-config
+                  key: db_user
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: petclinic-db-config
+                  key: db_password
+            - name: DB_HOST
+              value: petclinic-db-service
+            - name: SPRING_PROFILES_ACTIVE
+              value: k8s
+            - name: HZ_NETWORK_JOIN_KUBERNETES_ENABLED
+              value: "true"
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "sh", "-c", "sleep 10" ]
+          ports:
+            - containerPort: 8080
+            - containerPort: 5701
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: petclinic-app-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      name: petclinic-app-app
+    - port: 5701
+      name: petclinic-app-hazelcast
+  selector:
+    app: petclinic-app
