@@ -6,9 +6,11 @@ import io.jmix.petclinic.entity.Person;
 import io.jmix.petclinic.entity.owner.Owner;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import io.jmix.pessimisticlock.annotation.PessimisticLock;
 
 import java.time.LocalDate;
 
+@PessimisticLock(timeoutSec = 120)
 @JmixEntity
 @Table(name = "PETCLINIC_PET")
 @Entity(name = "petclinic_Pet")

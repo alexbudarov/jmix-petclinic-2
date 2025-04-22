@@ -41,6 +41,8 @@ dependencies {
     implementation 'io.jmix.datatools:jmix-datatools-flowui-starter'
     implementation 'io.jmix.fullcalendar:jmix-fullcalendar-flowui-starter'
     implementation 'io.jmix.gridexport:jmix-gridexport-flowui-starter'
+    implementation 'io.jmix.pessimisticlock:jmix-pessimisticlock-starter'
+    implementation 'io.jmix.pessimisticlock:jmix-pessimisticlock-flowui-starter'
 
     implementation 'io.jmix.flowui:jmix-flowui-kit'
 
