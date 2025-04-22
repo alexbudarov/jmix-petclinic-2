@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: petclinic-db-config
+data:
+  db_user: root
+  db_password: root
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: petclinic-db-pvclaim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petclinic-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: petclinic-db
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: petclinic-db
+    spec:
+      volumes:
+        - name: petclinic-db-storage
+          persistentVolumeClaim:
+            claimName: petclinic-db-pvclaim
+      containers:
+        - image: postgres
+          name: petclinic-db
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: petclinic-db-config
+                  key: db_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: petclinic-db-config
+                  key: db_password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_DB
+              value: petclinic
+          ports:
+            - containerPort: 5432
+              name: petclinic-db
+          volumeMounts:
+            - name: petclinic-db-storage
+              mountPath: /var/lib/postgresql/data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: petclinic-db-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+  selector:
+    app: petclinic-db
