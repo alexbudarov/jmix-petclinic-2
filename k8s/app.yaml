@@ -33,6 +33,14 @@ spec:
               value: k8s
             - name: HZ_NETWORK_JOIN_KUBERNETES_ENABLED
               value: "true"
+            - name: JAVA_OPTS # for Hazelcast efficiency
+              value: >- 
+                --add-modules=java.se
+                --add-exports=java.base/jdk.internal.ref=ALL-UNNAMED
+                --add-opens=java.base/java.lang=ALL-UNNAMED
+                --add-opens=java.base/sun.nio.ch=ALL-UNNAMED
+                --add-opens=java.management/sun.management=ALL-UNNAMED
+                --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED
           lifecycle:
             preStop:
               exec:
