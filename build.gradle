@@ -54,6 +54,9 @@ dependencies {
     testImplementation 'io.jmix.flowui:jmix-flowui-test-assist'
 
     implementation 'org.apache.commons:commons-dbcp2'
+
+    // cluster cache
+    implementation 'com.hazelcast:hazelcast'
 }
 
 configurations.implementation {
@@ -79,5 +82,7 @@ vaadin {
 bootBuildImage {
     if (rootProject.hasProperty('jmixDockerTag')) {
         imageName = rootProject['jmixDockerTag']
+    } else {
+        imageName = 'alexbudarov/petclinic'
     }
 }

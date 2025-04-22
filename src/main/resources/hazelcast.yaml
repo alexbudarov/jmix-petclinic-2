@@ -1,0 +1,8 @@
+hazelcast:
+  network:
+    join:
+      multicast:
+        enabled: false
+      kubernetes:
+        enabled: false # in Kubernetes it's actually set to true via environment variable
+        service-name: petclinic
