@@ -15,3 +15,13 @@ services:
     restart: unless-stopped
     volumes:
       - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
+
+# Version deployed in EuroChem CRM
+#  grafana851:
+#    image: grafana/grafana:8.5.1
+#    container_name: grafana851
+#    ports:
+#      - "3000:3000"
+#    restart: unless-stopped
+#    volumes:
+#      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
