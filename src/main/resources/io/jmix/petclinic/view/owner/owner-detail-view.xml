@@ -33,6 +33,7 @@
                     <textField id="cityField" property="city"/>
                     <textField id="emailField" property="email"/>
                     <textField id="telephoneField" property="telephone"/>
+                    <textField id="passportNumberField" property="passportNumber"/>
                 </formLayout>
             </tab>
             <tab id="petsTab" label="msg://io.jmix.petclinic.entity.owner/Owner.pets">
@@ -66,8 +67,6 @@
                 </vbox>
             </tab>
         </tabSheet>
-
-
         <hbox id="detailActions">
             <button id="saveAndCloseBtn" action="saveAction"/>
             <button id="closeBtn" action="closeAction"/>

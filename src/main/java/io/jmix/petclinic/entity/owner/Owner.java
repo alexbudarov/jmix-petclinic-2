@@ -9,6 +9,7 @@ import io.jmix.petclinic.entity.pet.Pet;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.List;
 
@@ -37,6 +38,18 @@ public class Owner extends Person {
     @OrderBy("identificationNumber")
     @OneToMany(mappedBy = "owner")
     private List<Pet> pets;
+
+    @Pattern(regexp = "\\d{2} \\d{2} \\d{6}")
+    @Column(name = "PASSPORT_NUMBER", length = 12)
+    private String passportNumber;
+
+    public String getPassportNumber() {
+        return passportNumber;
+    }
+
+    public void setPassportNumber(String passportNumber) {
+        this.passportNumber = passportNumber;
+    }
 
     public List<Pet> getPets() {
         return pets;
